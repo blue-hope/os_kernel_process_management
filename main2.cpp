@@ -75,7 +75,6 @@ int main(int argc, const char * argv[]) {
     
     //set empty_arr to calculate memory size
     long double *empty_arr = new long double[process_num];
-    cout<< sizeof(empty_arr) << empty_arr << endl;
 
     //use shmget() and shmat() to get memory with error handling
     shmid = shmget((key_t)1234, 100000000, IPC_CREAT | 0666);
@@ -95,7 +94,6 @@ int main(int argc, const char * argv[]) {
     for(int i = 0; i < process_num; i++){
         *(riemann_sum + sizeof(long double) * i) = 0;
     }
-    cout<< sizeof(empty_arr) << endl;
     //multi proccessing
     while(running_proc < process_num){
         //fork() to create new process
@@ -169,7 +167,7 @@ int main(int argc, const char * argv[]) {
     shmctl(shmid, IPC_RMID, NULL);
     
     //calculate timer
-    total_time_ms = ( long(endTime.tv_sec) - long(startTime.tv_sec) ) + (( long(endTime.tv_usec) - long(startTime.tv_usec) ) / 1000000.0);
+    total_time_ms = ( long(endTime.tv_sec) - long(startTime.tv_sec) ) * 1000.0 + (( long(endTime.tv_usec) - long(startTime.tv_usec) ) / 1000.0);
 
     cout << fixed;
     cout.precision(4);
