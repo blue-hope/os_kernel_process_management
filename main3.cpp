@@ -27,9 +27,15 @@ long double f(long double x, int len, long double *arr) {
 }
 
 long double *thread_sum;
+int n;
+int m;
+// int running_thread;
+int thread_num;
+long double *coefs;
+
 //int rng_trd, int trd_num, int n, int m, long double *coefs
 
-void *thread_function(void *args){
+void *thread_function(void *arg){
     long double adds = 0;
     
     //set variable
@@ -37,24 +43,40 @@ void *thread_function(void *args){
     long double a = 0;
     long double dx = (b-a)/n;
 
-    int rng_trd = (int)args[0];
-    int trd_num = (int)args[1];
-    
+    // int n = (int)args[2];
+    // int m = (int)args[3];
+
+    // int rng_trd = (int)args[0];
+    // int trd_num = (int)args[1];
+    // cout<<(int)(size_t)arg<<endl;
+    int running_thread = (int)(size_t)arg;
+    // int running_thread = 0;
     int num_in_each_thread;
 
     //allocate calc range on each threads
-    if(n % trd_num == 0){
-        num_in_each_thread = n / trd_num;
+    if(n % thread_num == 0){
+        num_in_each_thread = n / thread_num;
     } else {
-        num_in_each_thread = n / trd_num + 1;
+        num_in_each_thread = n / thread_num + 1;
     }
     
     
-    for(int i = rng_trd * num_in_each_thread; i < n; i++){
-        adds += f(a + i * dx, m, coefs) * dx;
+    if(running_thread == thread_num - 1){
+        //last_ordered_process(can be different from any other process)
+
+        for(int i = running_thread * num_in_each_thread; i < n; i++){
+            //calculate riemann_sum and store it in memory address 'riemann_sum'
+            //add running_process_number * sizeof(long double) to 'riemann_sum'
+            //to access the proper array
+            adds += f(a + i * dx, m, coefs) * dx;
+        }
+    } else {
+        for(int i = running_thread * num_in_each_thread; i < (running_thread + 1) * num_in_each_thread; i++){
+            adds += f(a + i * dx, m, coefs) * dx;
+        }
     }
     
-    thread_sum[rng_trd] = adds;
+    thread_sum[running_thread] = adds;
     
     pthread_exit(NULL);
 };
@@ -68,14 +90,14 @@ int main(int argc, const char * argv[]) {
     gettimeofday(&startTime, NULL);//-----------------------------------------------------------------
     
     //get arguments
-    int thread_num = atoi(argv[1]);
-    int n = atoi(argv[2]);
+    thread_num = atoi(argv[1]);
+    n = atoi(argv[2]);
     
     thread_sum = new long double[thread_num];
     
-    int m = atoi(argv[3]);
+    m = atoi(argv[3]);
     
-    long double coefs[m+1];
+    coefs = new long double[m+1];
     for(int i = 0; i <= m; i++){
         coefs[i] = stold(argv[4 + i]);
     }
@@ -91,8 +113,8 @@ int main(int argc, const char * argv[]) {
     //multi threading
     while(running_thread < thread_num){
         //thread_create() to create new thread  , n, m, coefs}
-        int args[2] = {running_thread, thread_num}
-        res = pthread_create(&(thread_handle[running_thread]), NULL, thread_functio, (void *)args);
+        // int args[4] = {running_thread, thread_num, n, m}
+        res = pthread_create(&(thread_handle[running_thread]), NULL, thread_function, (void *)running_thread);
         
         if(res != 0){//thread failed handling
             return -1;
@@ -124,7 +146,11 @@ int main(int argc, const char * argv[]) {
 
     
     //calculate timer
-    total_time_ms = ( long(endTime.tv_sec) - long(startTime.tv_sec) ) + (( long(endTime.tv_usec) - long(startTime.tv_usec) ) / 1000000.0);
+    total_time_ms = ( long(endTime.tv_sec) - long(startTime.tv_sec) )*1000.0 + (( long(endTime.tv_usec) - long(startTime.tv_usec) ) / 1000.0);
+
+    //free dynamic allocated variable and shared_memory
+    delete[] thread_sum;
+    delete[] coefs;
 
     cout << fixed;
     cout.precision(4);
