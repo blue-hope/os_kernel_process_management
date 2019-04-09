@@ -68,6 +68,7 @@ void *thread_function(void *arg){
             //calculate riemann_sum and store it in memory address 'riemann_sum'
             //add running_process_number * sizeof(long double) to 'riemann_sum'
             //to access the proper array
+            // cout << i << endl;
             adds += f(a + i * dx, m, coefs) * dx;
         }
     } else {
@@ -75,7 +76,7 @@ void *thread_function(void *arg){
             adds += f(a + i * dx, m, coefs) * dx;
         }
     }
-    
+    // cout<<"thread: "<<running_thread<<", adds: "<<adds<<endl;
     thread_sum[running_thread] = adds;
     
     pthread_exit(NULL);
@@ -117,6 +118,7 @@ int main(int argc, const char * argv[]) {
         res = pthread_create(&(thread_handle[running_thread]), NULL, thread_function, (void *)running_thread);
         
         if(res != 0){//thread failed handling
+            perror("error in pthread_create");
             return -1;
         }
         running_thread++;

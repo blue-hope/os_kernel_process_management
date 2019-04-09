@@ -35,6 +35,7 @@ int main(int argc, const char * argv[]) {
     gettimeofday(&startTime, NULL);//-----------------------------------------------------------------
     
     //get arguments
+    
     int process_num = atoi(argv[1]);
     int n = atoi(argv[2]);
     
@@ -48,7 +49,7 @@ int main(int argc, const char * argv[]) {
     }
     
     int m = atoi(argv[3]);
-    
+
     long double coefs[m+1];
     for(int i = 0; i <= m; i++){
         coefs[i] = stold(argv[4 + i]);
@@ -100,6 +101,7 @@ int main(int argc, const char * argv[]) {
         pids[running_proc] = fork();
         
         if(pids[running_proc] < 0){//fork failed handling
+            perror("error in fork");
             return -1;
         }
         else if(pids[running_proc] == 0){//when process child is running
@@ -115,7 +117,7 @@ int main(int argc, const char * argv[]) {
                 perror("shmat failed : ");
                 exit(0);
             }
-            
+            long double adds = 0;
             //process
             if(running_proc == process_num - 1){
                 //last_ordered_process(can be different from any other process)
@@ -124,6 +126,7 @@ int main(int argc, const char * argv[]) {
                     //calculate riemann_sum and store it in memory address 'riemann_sum'
                     //add running_process_number * sizeof(long double) to 'riemann_sum'
                     //to access the proper array
+                    adds +=  f(a + i * dx, m, coefs) * dx;
                     *(riemann_sum + sizeof(long double) * running_proc) += f(a + i * dx, m, coefs) * dx;
                 }
             }
@@ -134,9 +137,11 @@ int main(int argc, const char * argv[]) {
                     //calculate riemann_sum and store it in memory address 'riemann_sum'
                     //add running_process_number * sizeof(long double) to 'riemann_sum'
                     //to access the proper array
+                    adds +=  f(a + i * dx, m, coefs) * dx;
                     *(riemann_sum + sizeof(long double) * running_proc) += f(a + i * dx, m, coefs) * dx;
                 }
             }
+            // cout<<"process: "<<running_proc<<", adds: "<<adds<<endl;
             exit(0);//exit child process when done
         }
         running_proc++;

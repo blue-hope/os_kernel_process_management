@@ -53,7 +53,7 @@ int main(int argc, const char * argv[]) {
     gettimeofday(&endTime, NULL);//---------------------------------------------------------------------
     
     //caculate timer
-    total_time_ms = ( long(endTime.tv_sec) - long(startTime.tv_sec) ) + (( long(endTime.tv_usec) - long(startTime.tv_usec) ) / 1000000.0);
+    total_time_ms = ( long(endTime.tv_sec) - long(startTime.tv_sec) ) * 1000 + (( long(endTime.tv_usec) - long(startTime.tv_usec) ) / 1000.0);
     
     cout << fixed;
     cout.precision(4);
