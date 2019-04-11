@@ -17,7 +17,6 @@
 using namespace std;
 
 int main(int argc, const char * argv[]) {
-    int step3 = 0;
     while(true){
         pid_t pid;
         int status;
