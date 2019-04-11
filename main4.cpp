@@ -22,23 +22,29 @@ int main(int argc, const char * argv[]) {
         pid_t pid;
         int status;
 
+        time_t curtime;
+        struct tm *curtm;
+        curtime = time(NULL);
+        curtm = localtime(&curtime);
+
+        string str;
+
+        cout << "[" << curtm->tm_hour << ":" << curtm->tm_min << ":" << curtm->tm_sec << "]$ ";
+        getline(cin, str);
+
+        string exit = "exit";
+
+        if(str.compare(exit) == 0){
+            break;
+        }
+
         pid = fork();
 
         if(pid < 0){
+            perror("error in fork");
             return -1;
         }
         else if(pid == 0){
-            time_t curtime;
-            struct tm *curtm;
-            curtime = time(NULL);
-            curtm = localtime(&curtime);
-
-            string str;
-
-            cout << "[" << curtm->tm_hour << ":" << curtm->tm_min << ":" << curtm->tm_sec << "]$ ";
-            getline(cin, str);
-
-            // cout<<"::::"<<str<<endl;
             size_t pos = 0;
             string token;
             string tmp = str;
@@ -147,10 +153,8 @@ int main(int argc, const char * argv[]) {
             }
         }
         else{
-            waitpid(pid, &status, 0);
         }
-        if(step3 == 1)
-            break;
-        step3++;
+        // waitpid(pid, &status, 0);
+        wait(0);
     }
 }
