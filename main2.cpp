@@ -68,14 +68,10 @@ int main(int argc, const char * argv[]) {
     int running_proc = 0;
     
     //set shared_memory
-    //-> to use each process's result with array, memory size is sizeof(long double) * (process number)
-    //-> use empty_arr to get the array size
+    //-> to use each process's result with array, give enough memory size
     int shmid;
 
     void *shared_mem = (void *)0;
-    
-    //set empty_arr to calculate memory size
-    long double *empty_arr = new long double[process_num];
 
     //use shmget() and shmat() to get memory with error handling
     shmid = shmget((key_t)1234, 100000000, IPC_CREAT | 0666);
@@ -141,7 +137,7 @@ int main(int argc, const char * argv[]) {
                     *(riemann_sum + sizeof(long double) * running_proc) += f(a + i * dx, m, coefs) * dx;
                 }
             }
-            // cout<<"process: "<<running_proc<<", adds: "<<adds<<endl;
+            
             exit(0);//exit child process when done
         }
         running_proc++;
@@ -168,7 +164,6 @@ int main(int argc, const char * argv[]) {
     gettimeofday(&endTime, NULL);//---------------------------------------------------------------------
 
     //free dynamic allocated variable and shared_memory
-    delete[] empty_arr;
     shmctl(shmid, IPC_RMID, NULL);
     
     //calculate timer

@@ -43,12 +43,6 @@ void *thread_function(void *arg){
     long double a = 0;
     long double dx = (b-a)/n;
 
-    // int n = (int)args[2];
-    // int m = (int)args[3];
-
-    // int rng_trd = (int)args[0];
-    // int trd_num = (int)args[1];
-    // cout<<(int)(size_t)arg<<endl;
     int running_thread = (int)(size_t)arg;
     // int running_thread = 0;
     int num_in_each_thread;
@@ -62,13 +56,9 @@ void *thread_function(void *arg){
     
     
     if(running_thread == thread_num - 1){
-        //last_ordered_process(can be different from any other process)
+        //last_ordered_thread(can be different from any other thread)
 
         for(int i = running_thread * num_in_each_thread; i < n; i++){
-            //calculate riemann_sum and store it in memory address 'riemann_sum'
-            //add running_process_number * sizeof(long double) to 'riemann_sum'
-            //to access the proper array
-            // cout << i << endl;
             adds += f(a + i * dx, m, coefs) * dx;
         }
     } else {
@@ -76,7 +66,6 @@ void *thread_function(void *arg){
             adds += f(a + i * dx, m, coefs) * dx;
         }
     }
-    // cout<<"thread: "<<running_thread<<", adds: "<<adds<<endl;
     thread_sum[running_thread] = adds;
     
     pthread_exit(NULL);
@@ -114,7 +103,6 @@ int main(int argc, const char * argv[]) {
     //multi threading
     while(running_thread < thread_num){
         //thread_create() to create new thread  , n, m, coefs}
-        // int args[4] = {running_thread, thread_num, n, m}
         res = pthread_create(&(thread_handle[running_thread]), NULL, thread_function, (void *)running_thread);
         
         if(res != 0){//thread failed handling
